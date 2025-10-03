@@ -1,2 +1,7 @@
-# UTNMetodologiaDeSistema2
- Metodología de Sistemas II (Fassi)
+UTNMetodologiaDeSistema2
+👥 Integrantes del grupo
+
+    Díaz Jeremías
+    Crowley Pedro
+    Meunier Juan
+    Arrue Rodrigo
