@@ -9,7 +9,7 @@ Agregar servicios adicionales como iluminación, árbitro o pelotas.
 Cancelar reservas en caso necesario.
 
 El objetivo es empezar con una solución simple que se pueda ampliar más adelante.
-Patrones que se podrían aplicar (resumido)
+Patrones que se podrían aplicar 
 Singleton: para manejar la conexión a la base de datos de manera centralizada.
 Decorator: para los servicios extra de la reserva (luz, pelotas, árbitro).
 (Más adelante, si hace falta) Observer para notificaciones.
