@@ -1,7 +1,8 @@
-Progra-ivUNT
-👥 Integrantes del grupo
+# UTNMetodologiaDeSistema2
 
-    Díaz Jeremías
-    Crowley Pedro
-    Meunier Juan
-    Arrue Rodrigo
+## 👥 Integrantes del grupo
+- Díaz Jeremías  
+- Crowley Pedro  
+- Meunier Juan 
+- Arrue Rodrigo 
+---
