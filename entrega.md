@@ -1,24 +1,30 @@
-Entrega Parcial – Metodología de Sistemas II
-Temática elegida
+# Entrega Parcial – Metodología de Sistemas II
 
-Sistema de reservas para cancha de fútbol.
-La aplicación permitirá a los usuarios:
-Ver la disponibilidad de turnos.
-Reservar una cancha.
-Agregar servicios adicionales como iluminación, árbitro o pelotas.
-Cancelar reservas en caso necesario.
+## Temática elegida
+**Sistema de reservas para cancha de fútbol**
 
-El objetivo es empezar con una solución simple que se pueda ampliar más adelante.
-Patrones que se podrían aplicar 
-Singleton: para manejar la conexión a la base de datos de manera centralizada.
-Decorator: para los servicios extra de la reserva (luz, pelotas, árbitro).
-(Más adelante, si hace falta) Observer para notificaciones.
+La aplicación permitirá a los usuarios:  
+- Ver la disponibilidad de turnos  
+- Reservar una cancha  
+- Agregar servicios adicionales (iluminación, árbitro, pelotas)  
+- Cancelar reservas en caso necesario  
 
-Primeros avances y decisiones
-Se definieron los módulos principales:
-Usuarios
-Reservas
-Servicios adicionales
-La reserva básica será la clase principal.
-Los extras (luz, árbitro, pelotas) se agregarán como extensiones con Decorator.
-Se va a usar Singleton para que la conexión a la base de datos sea única y compartida.
+El objetivo es comenzar con una solución **simple**, pero diseñada de manera que pueda ampliarse en futuras etapas.
+
+---
+
+## Patrones de diseño propuestos
+- **Singleton**: para manejar la conexión a la base de datos de forma centralizada  
+- **Decorator**: para implementar los servicios adicionales en las reservas (luz, árbitro, pelotas)  
+- *(Opcional, a futuro)* **Observer**: para notificaciones a los usuarios  
+
+---
+
+## Primeros avances y decisiones
+- Se definieron los **módulos principales**:  
+  - **Usuarios**  
+  - **Reservas**  
+  - **Servicios adicionales**  
+- La **reserva básica** será la clase principal  
+- Los **extras** se incorporarán mediante el patrón **Decorator**  
+- Se utilizará **Singleton** para que la conexión a la base de datos sea única y compartida  
