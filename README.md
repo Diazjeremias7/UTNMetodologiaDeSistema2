@@ -10,12 +10,6 @@
 
 Aplicación web para gestionar reservas de canchas de fútbol con servicios adicionales.
 
-## Integrantes
-- [Nombre 1]
-- [Nombre 2]
-- [Nombre 3]
-- [Nombre 4]
-
 ## Tecnologías
 - **Backend:** Node.js + TypeScript + Express
 - **Frontend:** HTML + CSS + JavaScript
