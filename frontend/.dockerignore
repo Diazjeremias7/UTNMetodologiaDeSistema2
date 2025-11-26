@@ -1,0 +1,8 @@
+# No ignorar nada, necesitamos todos los archivos estáticos
+# pero documentamos para futuras exclusiones
+
+# Si tuviéramos archivos de desarrollo:
+# .git
+# .gitignore
+# README.md
+# *.md
