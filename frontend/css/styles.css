@@ -65,6 +65,21 @@ body {
     color: var(--primary-color);
 }
 
+
+.auth-logged-in { display: none; }
+.auth-logged-out { display: inline-block; }
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 0.4rem 0.7rem;
+    color: var(--white);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.nav-btn:hover { opacity: 0.9; transform: none; }
+
 /* Main content */
 main {
     padding: 2rem 0;
