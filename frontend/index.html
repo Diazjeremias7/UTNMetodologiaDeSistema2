@@ -13,9 +13,17 @@
                 <h1 class="logo">⚽ Reservas Fútbol</h1>
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Inicio</a></li>
-                    <li><a href="pages/reserva.html">Mis Reservas</a></li>
-                    <li><a href="pages/nueva-reserva.html">Nueva Reserva</a></li>
-                    <li><a href="pages/perfil.html">Mi Perfil</a></li>
+                    
+                    <!-- visible cuando está logueado -->
+                    <li class="auth-logged-in" style="display:none;"><a href="pages/reservas.html">Mis Reservas</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="pages/nueva-reserva.html">Nueva Reserva</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="pages/perfil.html">Mi Perfil</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="#" id="navUsername">Mi Cuenta</a></li>
+                    <li class="auth-logged-in" style="display:none;"><button id="logoutBtn" class="btn btn-danger nav-btn">Cerrar sesión</button></li>
+
+                    <!-- visible cuando no está logueado -->
+                    <li class="auth-logged-out"><a href="pages/login.html">Iniciar Sesión</a></li>
+                    <li class="auth-logged-out"><a href="pages/registro.html">Registro</a></li>
                 </ul>
             </div>
         </nav>
@@ -55,5 +63,6 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
