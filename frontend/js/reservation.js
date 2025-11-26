@@ -1,9 +1,18 @@
-// Cargar reservas
+// Cargar reservas (todas o por usuario si está logueado)
 async function loadReservations() {
     try {
-        const result = await api.getReservations();
+        let result;
+        const user = api.getCurrentUser && api.getCurrentUser();
+        if (user && user.id) {
+            result = await api.getUserReservations(user.id);
+        } else {
+            result = await api.getReservations();
+        }
 
-        if (result.success) {
+        // Adaptar a formato { success, data }
+        if (Array.isArray(result)) {
+            displayReservations(result);
+        } else if (result.success) {
             displayReservations(result.data);
         } else {
             showAlert('Error al cargar reservas', 'error');
@@ -70,8 +79,15 @@ async function createReservation(event) {
     if (formData.get('referee')) services.push('Árbitro');
     if (formData.get('balls')) services.push('Pelotas');
 
+    // Obtener usuario logueado
+    const user = api.getCurrentUser && api.getCurrentUser();
+    if (!user || !user.id) {
+        showAlert('Debes iniciar sesión para reservar', 'error');
+        return;
+    }
+
     const data = {
-        userId: parseInt(formData.get('userId')),
+        userId: user.id,
         date: formData.get('date'),
         timeSlot: formData.get('timeSlot'),
         services: services,
@@ -80,7 +96,8 @@ async function createReservation(event) {
     try {
         const result = await api.createReservation(data);
 
-        if (result.success) {
+        // Adaptar a formato { success, data }
+        if (result.success || result.id) {
             showAlert('Reserva creada exitosamente', 'success');
             event.target.reset();
             window.location.href = 'reservas.html';
@@ -90,6 +107,17 @@ async function createReservation(event) {
     } catch (error) {
         console.error('Error:', error);
         showAlert('Error de conexión', 'error');
+    }
+}
+// Consultar disponibilidad
+async function checkAvailability(date) {
+    try {
+        const response = await fetch(`${api.API_URL || 'http://localhost:3000/api'}/availability?date=${encodeURIComponent(date)}`);
+        if (!response.ok) throw new Error('Error al consultar disponibilidad');
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error) {
+        return { success: false, error: error.message };
     }
 }
 
