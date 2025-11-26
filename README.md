@@ -64,126 +64,174 @@ Abrir `frontend/index.html` en el navegador
 
 ## Licencia
 MIT
-## Instalación y Ejecución con Docker
+## Instalación y Ejecución con Docker 🐳
 
 ### Prerrequisitos
 - Docker instalado ([Descargar Docker](https://www.docker.com/get-started))
 - Docker Compose instalado (incluido con Docker Desktop)
 
-### Desarrollo
-
-#### Opción 1: Usando Make (recomendado)
+### Quick Start
 ```bash
-# Ver todos los comandos disponibles
-make help
+# Clonar el repositorio
+git clone <url-repositorio>
+cd sistema-reservas-futbol
 
-# Levantar el proyecto en modo desarrollo
+# Levantar todo el sistema
 make dev
 
-# Ver logs
-make logs
-
-# Detener el proyecto
-make down
-```
-
-#### Opción 2: Usando Docker Compose directamente
-```bash
-# Levantar el proyecto
+# O sin Make:
 docker-compose up --build
-
-# Levantar en segundo plano
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Detener
-docker-compose down
 ```
 
 ### Acceso a la Aplicación
 
 Una vez levantados los contenedores:
 - **Frontend:** http://localhost:8080
-- **Backend API:** http://localhost:3000
+- **Backend API:** http://localhost:3000/api
 - **Health Check:** http://localhost:3000/health
+
+Verificar que todo funciona:
+```bash
+make urls    # Ver todas las URLs
+make health  # Verificar salud de los servicios
+```
 
 ### Comandos Útiles
 ```bash
-# Ver estado de los contenedores
-make status
+# Desarrollo
+make dev              # Levantar en modo desarrollo
+make up               # Levantar en background
+make down             # Detener contenedores
+make logs             # Ver logs en tiempo real
+make restart          # Reiniciar servicios
 
-# Reiniciar servicios
-make restart
+# Logs específicos
+make logs-backend     # Solo backend
+make logs-frontend    # Solo frontend
 
-# Ejecutar tests
-make test
+# Construcción
+make build            # Construir imágenes
+make rebuild          # Reconstruir todo desde cero
 
-# Ver logs solo del backend
-make logs-backend
+# Testing y calidad
+make test             # Ejecutar tests
+make test-coverage    # Tests con cobertura
+make lint             # Linter
+make format           # Formatear código
 
-# Abrir shell en el backend
-make shell-backend
+# Debugging
+make shell-backend    # Shell en backend
+make shell-frontend   # Shell en frontend
+make status           # Estado de contenedores
 
-# Limpiar todo (contenedores, volúmenes, imágenes)
-make clean
+# Limpieza
+make clean            # Eliminar todo
+make clean-volumes    # Eliminar solo volúmenes
+
+# Producción
+make prod-up          # Levantar en producción
+make prod-down        # Detener producción
+make prod-logs        # Logs de producción
 ```
 
-### Producción
-```bash
-# Levantar en modo producción
-make prod-up
-
-# Ver logs de producción
-make prod-logs
-
-# Detener producción
-make prod-down
+### Arquitectura Docker
 ```
+┌─────────────────────────────────────────────────┐
+│         Docker Network (reservas-network)       │
+│                                                 │
+│  ┌────────────────┐       ┌─────────────────┐ │
+│  │   Frontend     │       │    Backend      │ │
+│  │   (Nginx)      │◄──────│   (Node.js)     │ │
+│  │   Port: 8080   │       │   Port: 3000    │ │
+│  │                │       │                 │ │
+│  │  - HTML/CSS/JS │       │  - Express API  │ │
+│  │  - Nginx proxy │       │  - TypeScript   │ │
+│  │  - Gzip        │       │  - SQLite       │ │
+│  └────────────────┘       └─────────────────┘ │
+│         │                          │           │
+│         └──────── /api ────────────┘           │
+│                                                 │
+│         ┌─────────────────┐                    │
+│         │  Volume         │                    │
+│         │  backend-data   │                    │
+│         │  (SQLite DB)    │                    │
+│         └─────────────────┘                    │
+└─────────────────────────────────────────────────┘
+```
+
+### Características Docker
+
+#### Backend
+- ✅ Hot-reload activado en desarrollo
+- ✅ TypeScript compilado automáticamente
+- ✅ Base de datos persistente en volumen
+- ✅ Health check cada 30 segundos
+- ✅ Variables de entorno configurables
+
+#### Frontend
+- ✅ Nginx optimizado con Gzip
+- ✅ Proxy automático a /api
+- ✅ Caché de archivos estáticos
+- ✅ Headers de seguridad
+- ✅ Página 404 personalizada
 
 ### Solución de Problemas
 
-#### El backend no inicia
+#### Puerto ya en uso
+```bash
+# Verificar qué está usando el puerto
+lsof -i :8080  # o :3000
+
+# Cambiar puerto en docker-compose.yml
+ports:
+  - "8081:80"  # Usar otro puerto
+```
+
+#### Contenedor no inicia
 ```bash
 # Ver logs detallados
-make logs-backend
+make logs-backend  # o logs-frontend
+
+# Reconstruir desde cero
+make rebuild
+```
+
+#### Base de datos corrupta
+```bash
+# Eliminar volumen y empezar de nuevo
+make clean-volumes
+make dev
+```
+
+#### Cache de Docker
+```bash
+# Limpiar cache de Docker
+docker system prune -a --volumes
 
 # Reconstruir sin cache
 make build
-make dev
 ```
 
-#### Puerto 3000 o 8080 ya en uso
+### Diferencias Desarrollo vs Producción
+
+| Aspecto | Desarrollo | Producción |
+|---------|-----------|-----------|
+| Hot-reload | ✅ Sí | ❌ No |
+| Source maps | ✅ Sí | ❌ No |
+| Optimización | ❌ No | ✅ Sí |
+| Logs | 🔊 Verbose | 🔇 Minimal |
+| Restart | unless-stopped | always |
+| Build | Incremental | Completo |
+
+### Monitoreo
 ```bash
-# Opción 1: Detener el servicio que usa el puerto
-# Opción 2: Cambiar el puerto en docker-compose.yml
-# Por ejemplo: "3001:3000" en lugar de "3000:3000"
-```
+# Ver recursos usados
+docker stats
 
-#### Limpiar todo y empezar de nuevo
-```bash
-make clean
-make dev
-```
+# Ver estado de salud
+make health
 
-## Instalación Manual (sin Docker)
-
-### Backend
-```bash
-cd backend
-npm install
-cp .env.example .env
-npm run dev
-```
-
-### Frontend
-Abrir `frontend/index.html` en el navegador o usar un servidor local:
-```bash
-# Con Python
-cd frontend
-python -m http.server 8080
-
-# Con Node.js (http-server)
-npx http-server frontend -p 8080
+# Inspeccionar contenedor
+docker inspect reservas-backend
+docker inspect reservas-frontend
 ```
