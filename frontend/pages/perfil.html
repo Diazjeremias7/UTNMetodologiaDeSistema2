@@ -240,10 +240,6 @@
             <div class="profile-card">
                 <div class="profile-header">
                     <div class="profile-avatar" id="profileAvatar">U</div>
-                    <div class="profile-info">
-                        <h2 id="userName">Cargando...</h2>
-                        <p id="userEmail">usuario@email.com</p>
-                    </div>
                 </div>
 
                 <div class="profile-details">
@@ -253,11 +249,7 @@
                     </div>
                     <div class="detail-row">
                         <label>Teléfono:</label>
-                        <value id="detailPhone">-</value>
-                    </div>
-                    <div class="detail-row">
-                        <label>Miembro desde:</label>
-                        <value id="detailMemberSince">-</value>
+                        <input type="tel" id="inputPhone" class="form-control" placeholder="Agregar teléfono (opcional)">
                     </div>
                     <div class="detail-row">
                         <label>Total reservas:</label>
@@ -265,6 +257,7 @@
                     </div>
                 </div>
 
+                <button class="btn btn-success" style="width:100%; margin-bottom:1rem;" onclick="saveProfile()">Guardar Teléfono</button>
                 <button class="btn-logout" onclick="logoutUser()">Cerrar Sesión</button>
             </div>
 
@@ -316,6 +309,57 @@
     </footer>
 
     <script src="../js/main.js"></script>
+    <script>
+        // Cargar perfil directamente sin dependencias
+        document.addEventListener('DOMContentLoaded', function() {
+            const userStr = localStorage.getItem('user');
+            console.log('🔍 Usuario:', userStr);
+            
+            if (!userStr) {
+                alert('No hay sesión activa');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const user = JSON.parse(userStr);
+            console.log('👤 Usuario parseado:', user);
+            
+            // Mostrar avatar
+            const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+            document.getElementById('profileAvatar').textContent = initials;
+            
+            // Mostrar email
+            document.getElementById('detailEmail').textContent = user.email || '-';
+            
+            // Cargar teléfono
+            document.getElementById('inputPhone').value = user.phone || '';
+        });
+        
+        // Guardar teléfono
+        function saveProfile() {
+            const phone = document.getElementById('inputPhone').value.trim();
+            
+            if (!phone) {
+                alert('Ingresa un teléfono para guardar');
+                return;
+            }
+            
+            const userStr = localStorage.getItem('user');
+            const user = JSON.parse(userStr);
+            user.phone = phone;
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            alert('✅ Teléfono guardado correctamente');
+            location.reload();
+        }
+        
+        // Cerrar sesión
+        function logoutUser() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+        }
+    </script>
     <script src="../js/api.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidad de Canchas</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .availability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .time-slot {
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .time-slot.available {
+            background: #2ecc71;
+            color: white;
+            cursor: pointer;
+        }
+        .time-slot.available:hover {
+            background: #27ae60;
+        }
+        .time-slot.occupied {
+            background: #e74c3c;
+            color: white;
+            cursor: not-allowed;
+        }
+        .date-selector {
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">⚽ Reservas Fútbol</h1>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="reserva.html">Mis Reservas</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="nueva-reserva.html">Nueva Reserva</a></li>
+                    <li class="auth-logged-out"><a href="login.html">Iniciar Sesión</a></li>
+                    <li class="auth-logged-out"><a href="registro.html">Registro</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h2>Disponibilidad de Canchas</h2>
+            <div class="date-selector">
+                <label for="checkDate">Selecciona una fecha:</label>
+                <input type="date" id="checkDate" class="form-control" min="2025-11-26">
+            </div>
+            <div id="availability-container"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Sistema de Reservas - Metodología de Sistemas II</p>
+        </div>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        const dateInput = document.getElementById('checkDate');
+        const container = document.getElementById('availability-container');
+
+        // Establecer fecha mínima a hoy
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+        dateInput.value = today;
+
+        dateInput.addEventListener('change', checkAvailability);
+
+        async function checkAvailability() {
+            const date = dateInput.value;
+            if (!date) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/reservations/availability?date=${date}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayAvailability(result.data, date);
+                } else {
+                    container.innerHTML = '<p>Error al cargar disponibilidad</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = '<p>Error de conexión</p>';
+            }
+        }
+
+        function displayAvailability(slots, date) {
+            if (!slots || slots.length === 0) {
+                container.innerHTML = '<p>No hay horarios disponibles</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="availability-grid">
+                    ${slots.map(slot => `
+                        <div class="time-slot ${slot.available ? 'available' : 'occupied'}"
+                             ${slot.available ? `onclick="reserveSlot('${date}', '${slot.timeSlot}')"` : ''}>
+                            ${slot.timeSlot}
+                            <br>
+                            <small>${slot.available ? '✓ Disponible' : '✗ Ocupado'}</small>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function reserveSlot(date, timeSlot) {
+            const user = api.getCurrentUser && api.getCurrentUser();
+            if (!user) {
+                alert('Debes iniciar sesión para reservar');
+                window.location.href = 'login.html';
+                return;
+            }
+            // Redirigir a nueva reserva con datos prellenados
+            window.location.href = `nueva-reserva.html?date=${date}&slot=${timeSlot}`;
+        }
+
+        // Cargar disponibilidad al inicio
+        checkAvailability();
+    </script>
+</body>
+</html>

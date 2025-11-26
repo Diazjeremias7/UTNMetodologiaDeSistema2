@@ -17,21 +17,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Cargar datos del perfil del usuario
 function loadUserProfile(user) {
+    console.log('👤 Usuario cargado:', user);
+    
     // Avatar con iniciales
     const initials = user.name
         ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
         : user.email?.charAt(0).toUpperCase() || 'U';
 
     document.getElementById('profileAvatar').textContent = initials;
-    document.getElementById('userName').textContent = user.name || 'Usuario';
-    document.getElementById('userEmail').textContent = user.email || '-';
 
     // Detalles del perfil
     document.getElementById('detailEmail').textContent = user.email || '-';
-    document.getElementById('detailPhone').textContent = user.phone || '-';
-    document.getElementById('detailMemberSince').textContent = user.createdAt
-        ? new Date(user.createdAt).toLocaleDateString('es-ES')
-        : '-';
+    
+    // Cargar teléfono si existe
+    const inputPhone = document.getElementById('inputPhone');
+    if (inputPhone) {
+        inputPhone.value = user.phone || '';
+    }
 }
 
 // Cargar reservas del usuario
@@ -178,15 +180,9 @@ async function cancelReservationFromProfile(id) {
 
 // Cerrar sesión
 function logoutUser() {
-    Feedback.confirm(
-        '¿Seguro que deseas cerrar sesión?',
-        'Cerrar sesión',
-        function () {
-            api.logoutUser();
-            Feedback.alert('Sesión cerrada correctamente', 'success');
-            setTimeout(() => window.location.href = '../index.html', 1500);
-        }
-    );
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    window.location.href = '../index.html';
 }
 
 // Función auxiliar para formatear fechas
