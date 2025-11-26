@@ -11,6 +11,16 @@ const api = {
         return response.json();
     },
 
+    // Registro: /api/users/register
+    async registerUser(userData) {
+        const response = await fetch(`${API_URL}/users/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData),
+        });
+        return response.json();
+    },
+
     async getUsers() {
         const response = await fetch(`${API_URL}/users`);
         return response.json();
