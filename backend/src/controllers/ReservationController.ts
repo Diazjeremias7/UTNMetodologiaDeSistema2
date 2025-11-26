@@ -4,6 +4,9 @@ import ReservationService from '../services/ReservationService';
 class ReservationController {
   async create(req: Request, res: Response): Promise<void> {
     try {
+      // Si el middleware auth estableció userId, usarla y evitar que el cliente envie otro userId
+      const userIdFromToken = (req as any).userId;
+      if (userIdFromToken) req.body.userId = userIdFromToken;
       const reservation = await ReservationService.createReservation(req.body);
       res.status(201).json({
         success: true,
