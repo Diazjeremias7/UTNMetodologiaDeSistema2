@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import UserService from '../services/UserService';
+import jwt from 'jsonwebtoken';
 
 class UserController {
   async create(req: Request, res: Response): Promise<void> {
@@ -14,6 +15,26 @@ class UserController {
         success: false,
         error: error instanceof Error ? error.message : 'Error desconocido',
       });
+    }
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        res.status(400).json({ success: false, error: 'Email y contraseña son requeridos' });
+        return;
+      }
+
+      const user = await UserService.authenticate(email, password);
+
+      // Crear token JWT
+      const secret = process.env.JWT_SECRET || 'secret_dev';
+      const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1h' });
+
+      res.json({ success: true, token, data: user });
+    } catch (error) {
+      res.status(401).json({ success: false, error: error instanceof Error ? error.message : 'Error de autenticación' });
     }
   }
 
