@@ -110,12 +110,14 @@ async function createReservation(event) {
         const result = await api.createReservation(data);
 
         // Adaptar a formato { success, data }
-        if (result.success || result.id) {
+        if (result && (result.success || result.id)) {
             showAlert('Reserva creada exitosamente', 'success');
             event.target.reset();
-            window.location.href = 'reservas.html';
+            // Redirige a la página de listado existente
+            window.location.href = 'reserva.html';
         } else {
-            showAlert(result.error || 'Error al crear reserva', 'error');
+            const msg = (result && (result.error || result.message)) || 'Error al crear reserva';
+            showAlert(msg, 'error');
         }
     } catch (error) {
         console.error('Error:', error);

@@ -39,6 +39,7 @@ const api = {
 
     logoutUser() {
         localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
         localStorage.removeItem('user');
     },
 
@@ -48,7 +49,9 @@ const api = {
     },
 
     getToken() {
-        return localStorage.getItem('token');
+        // El backend espera Authorization: Bearer <token>
+        // En el flujo de login se guarda bajo 'authToken'
+        return localStorage.getItem('authToken') || localStorage.getItem('token');
     },
 
     // Registro: /api/users/register
