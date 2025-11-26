@@ -68,7 +68,7 @@ async function cancelReservation(id) {
     }
 }
 
-// Crear nueva reserva
+// Crear nueva reserva con validaciones
 async function createReservation(event) {
     event.preventDefault();
 
@@ -79,6 +79,19 @@ async function createReservation(event) {
     if (formData.get('referee')) services.push('Árbitro');
     if (formData.get('balls')) services.push('Pelotas');
 
+    // Validaciones de campos
+    const date = formData.get('date');
+    const timeSlot = formData.get('timeSlot');
+
+    if (!date) {
+        showAlert('Debes seleccionar una fecha', 'error');
+        return;
+    }
+    if (!timeSlot) {
+        showAlert('Debes seleccionar un horario', 'error');
+        return;
+    }
+
     // Obtener usuario logueado
     const user = api.getCurrentUser && api.getCurrentUser();
     if (!user || !user.id) {
@@ -88,8 +101,8 @@ async function createReservation(event) {
 
     const data = {
         userId: user.id,
-        date: formData.get('date'),
-        timeSlot: formData.get('timeSlot'),
+        date: date,
+        timeSlot: timeSlot,
         services: services,
     };
 
