@@ -12,6 +12,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - backend-data:/app/data
     environment:
       - NODE_ENV=development
       - PORT=3000
@@ -26,24 +27,29 @@ services:
       retries: 3
       start_period: 40s
 
-  # Frontend (servidor estático simple con nginx)
+  # Frontend con Nginx
   frontend:
-    image: nginx:alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: reservas-frontend
     ports:
       - "8080:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - reservas-network
     depends_on:
       - backend
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   reservas-network:
     driver: bridge
 
 volumes:
-  db-data:
+  backend-data:
+    driver: local
