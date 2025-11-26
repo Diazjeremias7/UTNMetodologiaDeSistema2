@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Reserva</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">⚽ Reservas Fútbol</h1>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="reservas.html">Mis Reservas</a></li>
+                    <li><a href="nueva-reserva.html" class="active">Nueva Reserva</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h2>Nueva Reserva</h2>
+            <form id="reservationForm" onsubmit="createReservation(event)">
+                <div class="form-group">
+                    <label>Usuario ID:</label>
+                    <input type="number" name="userId" value="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    <input type="date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Horario:</label>
+                    <select name="timeSlot" required>
+                        <option value="08:00-09:00">08:00 - 09:00</option>
+                        <option value="09:00-10:00">09:00 - 10:00</option>
+                        <option value="10:00-11:00">10:00 - 11:00</option>
+                        <option value="18:00-19:00">18:00 - 19:00</option>
+                        <option value="19:00-20:00">19:00 - 20:00</option>
+                        <option value="20:00-21:00">20:00 - 21:00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Servicios Adicionales:</label>
+                    <div>
+                        <input type="checkbox" name="lighting" id="lighting">
+                        <label for="lighting">Iluminación (+$2,000)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="referee" id="referee">
+                        <label for="referee">Árbitro (+$5,000)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="balls" id="balls">
+                        <label for="balls">Pelotas (+$1,000)</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">Crear Reserva</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/reservations.js"></script>
+</body>
+</html>
