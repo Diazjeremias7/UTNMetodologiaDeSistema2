@@ -10,11 +10,16 @@
     <header>
         <nav class="navbar">
             <div class="container">
-                <h1 class="logo">⚽ Reservas Fútbol</h1>
+                <a href="index.html" class="logo">⚽ Reservas Fútbol</a>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Inicio</a></li>
-                    <li><a href="pages/reservas.html">Mis Reservas</a></li>
-                    <li><a href="pages/login.html">Iniciar Sesión</a></li>
+                    <li><a href="pages/reserva.html">Mis Reservas</a></li>
+                    <li><a href="pages/nueva-reserva.html" class="btn-nav-cta">Nueva Reserva</a></li>
                 </ul>
             </div>
         </nav>
@@ -41,9 +46,31 @@
             </div>
         </section>
 
+        <section class="how-it-works">
+            <h2>¿Cómo funciona?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Elegí la fecha</h3>
+                    <p>Seleccioná el día que querés jugar</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Horario disponible</h3>
+                    <p>Consultá los turnos libres</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Confirmá tu reserva</h3>
+                    <p>¡Y listo para jugar!</p>
+                </div>
+            </div>
+        </section>
+
         <section class="cta">
             <h2>¿Listo para jugar?</h2>
-            <a href="pages/reservas.html" class="btn btn-primary">Ver Disponibilidad</a>
+            <a href="pages/nueva-reserva.html" class="btn btn-primary btn-lg">Hacer una Reserva</a>
+            <a href="pages/reserva.html" class="btn btn-secondary btn-lg">Ver Mis Reservas</a>
         </section>
     </main>
 

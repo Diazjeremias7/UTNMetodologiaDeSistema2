@@ -5,16 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Reservas</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        .reservation-card {
-            background: white;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .reservation-card h3 {
-            margin-bottom: 1rem;
-            color: #2ecc71;
-        }
-    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <a href="../index.html" class="logo">⚽ Reservas Fútbol</a>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="reserva.html" class="active">Mis Reservas</a></li>
+                    <li><a href="nueva-reserva.html" class="btn-nav-cta">Nueva Reserva</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <nav class="breadcrumb">
+            <a href="../index.html">Inicio</a>
+            <span class="separator">›</span>
+            <span class="current">Mis Reservas</span>
+        </nav>
+
+        <div class="page-header">
+            <h2>📋 Mis Reservas</h2>
+            <a href="nueva-reserva.html" class="btn btn-primary">+ Nueva Reserva</a>
+        </div>
+
+        <div id="loadingIndicator" class="loading-container" style="display: none;">
+            <div class="spinner"></div>
+            <p>Cargando reservas...</p>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">📭</div>
+            <h3>No tenés reservas aún</h3>
+            <p>Comenzá reservando tu primera cancha</p>
+            <a href="nueva-reserva.html" class="btn btn-primary btn-lg">Hacer una Reserva</a>
+        </div>
+
+        <div id="reservations-list" class="reservations-grid"></div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Sistema de Reservas - Metodología de Sistemas II</p>
+        </div>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/reservation.js"></script>
+    <script>
+        // Cargar reservas al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReservations();
+        });
+    </script>

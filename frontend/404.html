@@ -4,71 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Página no encontrada</title>
+    <link rel="stylesheet" href="css/styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .error-page {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        .container {
+        .error-container {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
+            max-width: 600px;
         }
-        h1 {
-            font-size: 8rem;
+        .error-code {
+            font-size: 10rem;
+            font-weight: bold;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            line-height: 1;
         }
-        h2 {
-            font-size: 2rem;
+        .error-title {
+            font-size: 2.5rem;
             margin-bottom: 1rem;
+            font-weight: 700;
         }
-        p {
-            font-size: 1.2rem;
+        .error-message {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+        }
+        .soccer-ball {
+            font-size: 6rem;
             margin-bottom: 2rem;
-            opacity: 0.9;
+            animation: bounce 2s ease-in-out infinite;
         }
-        .btn {
+        @keyframes bounce {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg); 
+            }
+            50% { 
+                transform: translateY(-30px) rotate(180deg); 
+            }
+        }
+        .error-btn {
             display: inline-block;
-            padding: 1rem 2rem;
+            padding: 1.2rem 3rem;
             background-color: white;
             color: #667eea;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 50px;
             font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        .error-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            background-color: #f8f9fa;
         }
-        .soccer-ball {
-            font-size: 5rem;
-            margin-bottom: 2rem;
-            animation: bounce 2s infinite;
+        .error-links {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
         }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        .error-links a {
+            color: white;
+            text-decoration: underline;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+        .error-links a:hover {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="soccer-ball">⚽</div>
-        <h1>404</h1>
-        <h2>¡Ups! Página no encontrada</h2>
-        <p>Parece que esta cancha no existe en nuestro sistema</p>
-        <a href="/" class="btn">Volver al Inicio</a>
+    <div class="error-page">
+        <div class="error-container">
+            <div class="soccer-ball">⚽</div>
+            <h1 class="error-code">404</h1>
+            <h2 class="error-title">¡Ups! Página no encontrada</h2>
+            <p class="error-message">Parece que esta cancha no existe en nuestro sistema. La pelota salió del campo...</p>
+            <a href="/" class="error-btn">🏠 Volver al Inicio</a>
+            <div class="error-links">
+                <a href="/pages/nueva-reserva.html">Nueva Reserva</a>
+                <a href="/pages/reserva.html">Mis Reservas</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

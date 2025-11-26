@@ -10,59 +10,103 @@
     <header>
         <nav class="navbar">
             <div class="container">
-                <h1 class="logo">⚽ Reservas Fútbol</h1>
+                <a href="../index.html" class="logo">⚽ Reservas Fútbol</a>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
                 <ul class="nav-links">
                     <li><a href="../index.html">Inicio</a></li>
-                    <li><a href="reservas.html">Mis Reservas</a></li>
-                    <li><a href="nueva-reserva.html" class="active">Nueva Reserva</a></li>
+                    <li><a href="reserva.html">Mis Reservas</a></li>
+                    <li><a href="nueva-reserva.html" class="active btn-nav-cta">Nueva Reserva</a></li>
                 </ul>
             </div>
         </nav>
     </header>
 
     <main class="container">
+        <nav class="breadcrumb">
+            <a href="../index.html">Inicio</a>
+            <span class="separator">›</span>
+            <span class="current">Nueva Reserva</span>
+        </nav>
+
         <div class="card">
-            <h2>Nueva Reserva</h2>
+            <h2>✨ Nueva Reserva</h2>
+            <p class="form-description">Completá los datos para reservar tu cancha</p>
+            
+            <div id="loadingIndicator" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+                <p>Procesando tu reserva...</p>
+            </div>
+
             <form id="reservationForm" onsubmit="createReservation(event)">
                 <div class="form-group">
-                    <label>Usuario ID:</label>
-                    <input type="number" name="userId" value="1" required>
+                    <label for="userId">Usuario ID:</label>
+                    <input type="number" id="userId" name="userId" value="1" required min="1">
+                    <small class="form-hint">Identificador del usuario (temporal)</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Fecha:</label>
-                    <input type="date" name="date" required>
+                    <label for="date">📅 Fecha:</label>
+                    <input type="date" id="date" name="date" required>
+                    <small class="form-hint">Seleccioná el día que querés jugar</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Horario:</label>
-                    <select name="timeSlot" required>
-                        <option value="08:00-09:00">08:00 - 09:00</option>
-                        <option value="09:00-10:00">09:00 - 10:00</option>
-                        <option value="10:00-11:00">10:00 - 11:00</option>
-                        <option value="18:00-19:00">18:00 - 19:00</option>
-                        <option value="19:00-20:00">19:00 - 20:00</option>
-                        <option value="20:00-21:00">20:00 - 21:00</option>
+                    <label for="timeSlot">🕐 Horario:</label>
+                    <select id="timeSlot" name="timeSlot" required>
+                        <option value="">Seleccionar horario</option>
+                        <optgroup label="Mañana">
+                            <option value="08:00-09:00">08:00 - 09:00</option>
+                            <option value="09:00-10:00">09:00 - 10:00</option>
+                            <option value="10:00-11:00">10:00 - 11:00</option>
+                        </optgroup>
+                        <optgroup label="Tarde/Noche">
+                            <option value="18:00-19:00">18:00 - 19:00</option>
+                            <option value="19:00-20:00">19:00 - 20:00</option>
+                            <option value="20:00-21:00">20:00 - 21:00</option>
+                        </optgroup>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Servicios Adicionales:</label>
-                    <div>
-                        <input type="checkbox" name="lighting" id="lighting">
-                        <label for="lighting">Iluminación (+$2,000)</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" name="referee" id="referee">
-                        <label for="referee">Árbitro (+$5,000)</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" name="balls" id="balls">
-                        <label for="balls">Pelotas (+$1,000)</label>
+                    <label>⚡ Servicios Adicionales:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="lighting" id="lighting">
+                            <label for="lighting">
+                                <span class="checkbox-label">💡 Iluminación</span>
+                                <span class="checkbox-price">+$2,000</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="referee" id="referee">
+                            <label for="referee">
+                                <span class="checkbox-label">👨‍⚖️ Árbitro</span>
+                                <span class="checkbox-price">+$5,000</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="balls" id="balls">
+                            <label for="balls">
+                                <span class="checkbox-label">⚽ Pelotas</span>
+                                <span class="checkbox-price">+$1,000</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success">Crear Reserva</button>
+                <div class="price-summary">
+                    <div class="price-label">Precio base:</div>
+                    <div class="price-value">$10,000</div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='../index.html'">Cancelar</button>
+                    <button type="submit" class="btn btn-success btn-lg">Confirmar Reserva</button>
+                </div>
             </form>
         </div>
     </main>
