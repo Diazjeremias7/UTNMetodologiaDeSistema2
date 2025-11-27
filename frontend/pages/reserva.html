@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Reservas</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .reservation-card {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .reservation-card h3 {
+            margin-bottom: 1rem;
+            color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">⚽ Reservas Fútbol</h1>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Inicio</a></li>
+                    
+                    <!-- visible cuando está logueado -->
+                    <li class="auth-logged-in" style="display:none;"><a href="reserva.html" class="active">Mis Reservas</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="nueva-reserva.html">Nueva Reserva</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="perfil.html">Mi Perfil</a></li>
+                    <li class="auth-logged-in" style="display:none;"><a href="#" id="navUsername">Mi Cuenta</a></li>
+                    <li class="auth-logged-in" style="display:none;"><button id="logoutBtn" class="btn btn-danger nav-btn">Cerrar sesión</button></li>
+                    
+                    <!-- visible cuando no está logueado -->
+                    <li class="auth-logged-out"><a href="../pages/login.html">Iniciar Sesión</a></li>
+                    <li class="auth-logged-out"><a href="../pages/registro.html">Registro</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <h2>Mis Reservas</h2>
+            <div id="reservations-list"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Sistema de Reservas - Metodología de Sistemas II</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Función para mostrar notificación
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#2ecc71' : '#e74c3c'};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Cargar reservas al cargar la página
+        async function loadReservations() {
+            try {
+                const userStr = localStorage.getItem('user');
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+                
+                if (!userStr || !token) {
+                    document.getElementById('reservations-list').innerHTML = '<p>Debes iniciar sesión para ver tus reservas</p>';
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                
+                const response = await fetch(`http://localhost:3000/api/reservations/user/${user.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+                console.log('Reservas:', result);
+
+                if (result.success && result.data) {
+                    displayReservations(result.data);
+                } else {
+                    document.getElementById('reservations-list').innerHTML = '<p>No se pudieron cargar las reservas</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('reservations-list').innerHTML = '<p>Error al cargar reservas</p>';
+            }
+        }
+
+        function displayReservations(reservations) {
+            const container = document.getElementById('reservations-list');
+            
+            if (!reservations || reservations.length === 0) {
+                container.innerHTML = '<p>No tienes reservas</p>';
+                return;
+            }
+
+            container.innerHTML = reservations.map(res => {
+                // Parsear servicios si es string JSON
+                let services = 'Ninguno';
+                if (res.services) {
+                    try {
+                        const parsed = typeof res.services === 'string' ? JSON.parse(res.services) : res.services;
+                        services = Array.isArray(parsed) ? parsed.join(', ') : parsed;
+                    } catch (e) {
+                        services = res.services;
+                    }
+                }
+                
+                return `
+                <div class="reservation-card">
+                    <h3>Reserva #${res.id}</h3>
+                    <p><strong>Fecha:</strong> ${res.date}</p>
+                    <p><strong>Horario:</strong> ${res.time_slot}</p>
+                    <p><strong>Precio:</strong> $${res.total_price?.toLocaleString() || res.total_price}</p>
+                    <p><strong>Servicios:</strong> ${services}</p>
+                    <p><strong>Estado:</strong> ${res.status === 'active' ? 'Activa' : 'Cancelada'}</p>
+                    ${res.status === 'active' ? `
+                        <button onclick="cancelReservation(${res.id})" class="btn btn-danger">
+                            Cancelar Reserva
+                        </button>
+                    ` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function cancelReservation(id) {
+            if (!confirm('¿Estás seguro de que deseas cancelar esta reserva?')) return;
+
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+                
+                const response = await fetch(`http://localhost:3000/api/reservations/${id}/cancel`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('Reserva cancelada exitosamente', 'success');
+                    loadReservations(); // Recargar lista
+                } else {
+                    showNotification('Error al cancelar: ' + (result.error || 'Error desconocido'), 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error de conexión', 'error');
+            }
+        }
+
+        // Cargar reservas al iniciar
+        window.addEventListener('DOMContentLoaded', loadReservations);
+
+        // Agregar estilos para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

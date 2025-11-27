@@ -128,6 +128,7 @@ class Database {
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
+        phone TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -150,6 +151,14 @@ class Database {
     try {
       await this.run(createUsersTable);
       await this.run(createReservationsTable);
+      
+      // Agregar columna phone si no existe (para bases de datos existentes)
+      try {
+        await this.run('ALTER TABLE users ADD COLUMN phone TEXT');
+      } catch (err) {
+        // La columna ya existe, ignorar error
+      }
+      
       console.log('✓ Tablas inicializadas correctamente');
     } catch (error) {
       console.error('✗ Error al inicializar tablas:', error);

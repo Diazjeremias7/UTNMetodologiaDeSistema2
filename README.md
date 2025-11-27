@@ -54,6 +54,35 @@ Abrir `frontend/index.html` en el navegador
 - `POST /api/users/register` - Registrar usuario
 - `POST /api/users/login` - Iniciar sesión
 
+### Nota - login / token
+
+La ruta `POST /api/users/login` devuelve un JWT cuando las credenciales son válidas. El frontend guarda el token en `localStorage` bajo la clave `authToken` y el objeto `user` en `localStorage:user`.
+
+Ejemplo de payload de request:
+
+```json
+{
+  "email": "usuario@ejemplo.com",
+  "password": "secreto123"
+}
+```
+
+Respuesta esperada (200):
+
+```json
+{
+  "success": true,
+  "token": "<jwt-token-aqui>",
+  "data": { "id": 1, "name": "...", "email": "..." }
+}
+```
+
+### Seguridad adicional
+
+- Las contraseñas ahora se almacenan hasheadas con bcrypt al registrar un usuario.
+- Las rutas críticas (por ejemplo creación de reservas) están protegidas por JWT; enviar el token en el header `Authorization: Bearer <token>`.
+  Si tenés usuarios antiguos con contraseñas en texto plano, la primera vez que hagan login el sistema migrará su contraseña a hash automáticamente.
+
 ### Reservas
 - `GET /api/reservations` - Listar reservas
 - `POST /api/reservations` - Crear reserva
