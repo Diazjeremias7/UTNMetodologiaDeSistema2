@@ -35,13 +35,8 @@
             <h2>Nueva Reserva</h2>
             <form id="reservationForm" onsubmit="createReservation(event)">
                 <div class="form-group">
-                    <label>Usuario ID:</label>
-                    <input type="number" name="userId" value="1" required>
-                </div>
-
-                <div class="form-group">
                     <label>Fecha:</label>
-                    <input type="date" name="date" required>
+                    <input type="date" name="date" id="dateInput" required min="" max="">
                 </div>
 
                 <div class="form-group">
@@ -59,17 +54,26 @@
                 <div class="form-group">
                     <label>Servicios Adicionales:</label>
                     <div>
-                        <input type="checkbox" name="lighting" id="lighting">
+                        <input type="checkbox" name="lighting" id="lighting" onchange="updatePrice()">
                         <label for="lighting">Iluminación (+$2,000)</label>
                     </div>
                     <div>
-                        <input type="checkbox" name="referee" id="referee">
+                        <input type="checkbox" name="referee" id="referee" onchange="updatePrice()">
                         <label for="referee">Árbitro (+$5,000)</label>
                     </div>
                     <div>
-                        <input type="checkbox" name="balls" id="balls">
+                        <input type="checkbox" name="balls" id="balls" onchange="updatePrice()">
                         <label for="balls">Pelotas (+$1,000)</label>
                     </div>
+                </div>
+
+                <div class="form-group" style="background: #f0f0f0; padding: 15px; border-radius: 5px;">
+                    <h3 style="margin-top: 0;">Resumen de la Reserva</h3>
+                    <p><strong>Precio base de cancha:</strong> $10,000</p>
+                    <div id="selectedServices" style="margin: 10px 0;">
+                        <strong>Servicios seleccionados:</strong> Ninguno
+                    </div>
+                    <p style="font-size: 1.2em; color: #2ecc71;"><strong>Precio Total: $<span id="totalPrice">10000</span></strong></p>
                 </div>
 
                 <button type="submit" class="btn btn-success">Crear Reserva</button>
@@ -79,7 +83,200 @@
 
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
-    <script src="../js/reservation.js"></script>
     <script src="../js/auth.js"></script>
+    <script>
+        // Función para mostrar notificación
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#2ecc71' : '#e74c3c'};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Función para crear reserva directamente
+        async function createReservation(event) {
+            event.preventDefault();
+            console.log('Formulario enviado');
+
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            // Obtener servicios seleccionados
+            const services = [];
+            if (formData.get('lighting') === 'on') services.push('Iluminación');
+            if (formData.get('referee') === 'on') services.push('Árbitro');
+            if (formData.get('balls') === 'on') services.push('Pelotas');
+
+            const date = formData.get('date');
+            const timeSlot = formData.get('timeSlot');
+
+            console.log('Datos:', { date, timeSlot, services });
+
+            // Validaciones
+            if (!date) {
+                showNotification('Debes seleccionar una fecha', 'error');
+                return;
+            }
+            
+            // Validar que la fecha esté en el rango permitido
+            const selectedDate = new Date(date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const maxDate = new Date();
+            maxDate.setFullYear(today.getFullYear() + 1);
+            
+            if (selectedDate < today) {
+                showNotification('No puedes reservar en fechas pasadas', 'error');
+                return;
+            }
+            
+            if (selectedDate > maxDate) {
+                showNotification('Solo puedes reservar hasta 1 año adelante', 'error');
+                return;
+            }
+            
+            if (!timeSlot) {
+                showNotification('Debes seleccionar un horario', 'error');
+                return;
+            }
+
+            // Verificar usuario logueado
+            const userStr = localStorage.getItem('user');
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            
+            console.log('Token:', token);
+            console.log('User:', userStr);
+
+            if (!userStr || !token) {
+                showNotification('Debes iniciar sesión para crear una reserva', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            console.log('Usuario parseado:', user);
+
+            const data = {
+                userId: user.id,
+                date: date,
+                timeSlot: timeSlot,
+                services: services
+            };
+
+            console.log('Enviando datos:', data);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/reservations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('Respuesta:', result);
+
+                if (result.success) {
+                    showNotification('¡Reserva creada exitosamente!', 'success');
+                    setTimeout(() => window.location.href = 'reserva.html', 1500);
+                } else {
+                    showNotification('Error: ' + (result.error || 'No se pudo crear la reserva'), 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error de conexión', 'error');
+            }
+        }
+
+        // Función para actualizar precio
+        function updatePrice() {
+            const basePrice = 10000;
+            const prices = {
+                lighting: 2000,
+                referee: 5000,
+                balls: 1000
+            };
+            
+            let total = basePrice;
+            const selectedServices = [];
+            
+            if (document.getElementById('lighting')?.checked) {
+                total += prices.lighting;
+                selectedServices.push('Iluminación (+$2,000)');
+            }
+            if (document.getElementById('referee')?.checked) {
+                total += prices.referee;
+                selectedServices.push('Árbitro (+$5,000)');
+            }
+            if (document.getElementById('balls')?.checked) {
+                total += prices.balls;
+                selectedServices.push('Pelotas (+$1,000)');
+            }
+            
+            document.getElementById('totalPrice').textContent = total.toLocaleString();
+            
+            const servicesDiv = document.getElementById('selectedServices');
+            if (selectedServices.length > 0) {
+                servicesDiv.innerHTML = '<strong>Servicios seleccionados:</strong><br>' + selectedServices.join('<br>');
+            } else {
+                servicesDiv.innerHTML = '<strong>Servicios seleccionados:</strong> Ninguno';
+            }
+        }
+
+        // Prellenar datos desde URL y configurar fechas
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateParam = urlParams.get('date');
+        const slotParam = urlParams.get('slot');
+        
+        // Configurar fechas min y max
+        const today = new Date();
+        const maxDate = new Date();
+        maxDate.setFullYear(today.getFullYear() + 1); // Máximo 1 año adelante
+        
+        const dateInput = document.getElementById('dateInput');
+        dateInput.min = today.toISOString().split('T')[0];
+        dateInput.max = maxDate.toISOString().split('T')[0];
+        
+        if (dateParam) {
+            document.querySelector('input[name="date"]').value = dateParam;
+        }
+        if (slotParam) {
+            const select = document.querySelector('select[name="timeSlot"]');
+            select.value = slotParam;
+        }
+
+        // Agregar estilos para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

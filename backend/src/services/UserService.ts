@@ -87,6 +87,10 @@ class UserService {
     const { password: _p, ...rest } = user as any;
     return rest as User;
   }
+
+  async updatePhone(id: number, phone: string): Promise<void> {
+    await this.db.run('UPDATE users SET phone = ? WHERE id = ?', [phone, id]);
+  }
 }
 
 export default new UserService();

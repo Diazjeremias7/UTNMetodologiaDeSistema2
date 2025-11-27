@@ -75,10 +75,14 @@
         const dateInput = document.getElementById('checkDate');
         const container = document.getElementById('availability-container');
 
-        // Establecer fecha mínima a hoy
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.min = today;
-        dateInput.value = today;
+        // Establecer fecha mínima a hoy y máxima 1 año adelante
+        const today = new Date();
+        const maxDate = new Date();
+        maxDate.setFullYear(today.getFullYear() + 1);
+        
+        dateInput.min = today.toISOString().split('T')[0];
+        dateInput.max = maxDate.toISOString().split('T')[0];
+        dateInput.value = today.toISOString().split('T')[0];
 
         dateInput.addEventListener('change', checkAvailability);
 

@@ -14,6 +14,21 @@ class ReservationService {
   async createReservation(data: CreateReservationDTO): Promise<ReservationDTO> {
     const { userId, date, timeSlot, services } = data;
 
+    // Validar fecha
+    const reservationDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const maxDate = new Date();
+    maxDate.setFullYear(today.getFullYear() + 1);
+
+    if (reservationDate < today) {
+      throw new Error('No se pueden hacer reservas en fechas pasadas');
+    }
+
+    if (reservationDate > maxDate) {
+      throw new Error('Solo se pueden hacer reservas hasta 1 año adelante');
+    }
+
     // Crear reserva básica
     let reservation: IReservation = new BasicReservation(
       userId,
@@ -91,6 +106,34 @@ class ReservationService {
 
   async deleteReservation(id: number): Promise<void> {
     await this.db.run('DELETE FROM reservations WHERE id = ?', [id]);
+  }
+
+  async getAvailability(date: string): Promise<{ timeSlot: string; available: boolean }[]> {
+    const timeSlots = [
+      '08:00-09:00',
+      '09:00-10:00',
+      '10:00-11:00',
+      '11:00-12:00',
+      '14:00-15:00',
+      '15:00-16:00',
+      '16:00-17:00',
+      '17:00-18:00',
+      '18:00-19:00',
+      '19:00-20:00',
+      '20:00-21:00',
+    ];
+
+    const reservedSlots = await this.db.all<{ time_slot: string }>(
+      "SELECT time_slot FROM reservations WHERE date = ? AND status = 'active'",
+      [date]
+    );
+
+    const reservedTimes = new Set(reservedSlots.map((r) => r.time_slot));
+
+    return timeSlots.map((slot) => ({
+      timeSlot: slot,
+      available: !reservedTimes.has(slot),
+    }));
   }
 }
 

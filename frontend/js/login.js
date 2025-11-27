@@ -30,7 +30,8 @@ loginForm.addEventListener('submit', async (e) => {
     // Guardar token y datos en localStorage
     if (result.token) {
       localStorage.setItem('authToken', result.token);
-      localStorage.setItem('user', JSON.stringify(result.data ?? {}));
+      localStorage.setItem('token', result.token);  // Guardar también como 'token'
+      localStorage.setItem('user', JSON.stringify(result.data || result.user || {}));
       showMessage('Inicio de sesión exitoso', 'success');
       // Redirect to reservations page or home
       setTimeout(() => (window.location.href = '../index.html'), 800);

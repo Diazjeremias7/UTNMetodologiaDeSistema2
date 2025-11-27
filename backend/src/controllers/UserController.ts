@@ -93,6 +93,32 @@ class UserController {
       });
     }
   }
+
+  async updatePhone(req: Request, res: Response): Promise<void> {
+    try {
+      const id = parseInt(req.params.id);
+      const { phone } = req.body;
+      
+      if (!phone) {
+        res.status(400).json({
+          success: false,
+          error: 'Teléfono requerido',
+        });
+        return;
+      }
+
+      await UserService.updatePhone(id, phone);
+      res.json({
+        success: true,
+        message: 'Teléfono actualizado',
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Error al actualizar teléfono',
+      });
+    }
+  }
 }
 
 export default new UserController();

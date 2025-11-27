@@ -84,6 +84,29 @@ class ReservationController {
       });
     }
   }
+
+  async getAvailability(req: Request, res: Response): Promise<void> {
+    try {
+      const date = req.query.date as string;
+      if (!date) {
+        res.status(400).json({
+          success: false,
+          error: 'Fecha requerida',
+        });
+        return;
+      }
+      const availability = await ReservationService.getAvailability(date);
+      res.json({
+        success: true,
+        data: availability,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Error al obtener disponibilidad',
+      });
+    }
+  }
 }
 
 export default new ReservationController();
