@@ -110,7 +110,12 @@ abstract class ReservationDecorator implements IReservation {
   }
 
   toJSON(): ReservationData {
-    return this.reservation.toJSON();
+    const base = this.reservation.toJSON();
+    return {
+      ...base,
+      totalPrice: this.getPrice(),
+      services: this.getServices(),
+    } as ReservationData;
   }
 }
 

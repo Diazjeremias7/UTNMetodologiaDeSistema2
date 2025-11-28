@@ -3,6 +3,7 @@ import {
   LightingDecorator,
   RefereeDecorator,
   BallsDecorator,
+  IReservation,
 } from '../../src/models/Reservation';
 
 describe('Patrón Decorator - Reservas', () => {
@@ -13,7 +14,7 @@ describe('Patrón Decorator - Reservas', () => {
   });
 
   test('agregar iluminación debe aumentar precio', () => {
-    let reservation = new BasicReservation(1, '2025-01-20', '18:00-19:00');
+    let reservation: IReservation = new BasicReservation(1, '2025-01-20', '18:00-19:00');
     reservation = new LightingDecorator(reservation);
     
     expect(reservation.getPrice()).toBe(12000);
@@ -21,7 +22,7 @@ describe('Patrón Decorator - Reservas', () => {
   });
 
   test('agregar múltiples servicios debe acumular precios', () => {
-    let reservation = new BasicReservation(1, '2025-01-20', '18:00-19:00');
+    let reservation: IReservation = new BasicReservation(1, '2025-01-20', '18:00-19:00');
     reservation = new LightingDecorator(reservation);
     reservation = new RefereeDecorator(reservation);
     reservation = new BallsDecorator(reservation);
@@ -36,7 +37,7 @@ describe('Patrón Decorator - Reservas', () => {
   });
 
   test('toJSON debe retornar datos completos', () => {
-    let reservation = new BasicReservation(1, '2025-01-20', '18:00-19:00');
+    let reservation: IReservation = new BasicReservation(1, '2025-01-20', '18:00-19:00');
     reservation = new LightingDecorator(reservation);
     
     const data = reservation.toJSON();
