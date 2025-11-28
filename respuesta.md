@@ -1,173 +1,176 @@
 # Patrones Decorator y Observer en el Proyecto
 
-## Patrón Decorator
+## Patrón Decorator ✅ IMPLEMENTADO
 
 ### ¿Cómo se agregan los extras al servicio?
 
-Los extras se agregan mediante decoradores que envuelven la reserva base:
+**Código en `backend/src/models/Reservation.ts`:**
 
-- Una reserva básica tiene un costo base
-- Cada extra (iluminación, equipamiento, árbitro, bebidas) se implementa como un decorador
-- Los decoradores se aplican de forma encadenada
-- Cada decorador añade funcionalidad y costo adicional
+```typescript
+// Reserva base
+class BasicReservation {
+  protected basePrice = 10000;
+  getPrice() { return this.basePrice; }
+}
 
-Ejemplo:
+// Decoradores concretos
+class LightingDecorator extends ReservationDecorator {
+  private lightingCost = 2000;
+  getPrice() { return this.reservation.getPrice() + this.lightingCost; }
+}
+
+class RefereeDecorator extends ReservationDecorator {
+  private refereeCost = 5000;
+  getPrice() { return this.reservation.getPrice() + this.refereeCost; }
+}
+
+class BallsDecorator extends ReservationDecorator {
+  private ballsCost = 1000;
+  getPrice() { return this.reservation.getPrice() + this.ballsCost; }
+}
 ```
-ReservaBase ($1000)
-→ + DecoradorIluminacion ($300)
-→ + DecoradorEquipamiento ($200)
-= Total: $1500
+
+**Aplicación en `backend/src/services/ReservationService.ts`:**
+
+```typescript
+let reservation = new BasicReservation(userId, date, timeSlot);
+
+// Aplicar decoradores según servicios solicitados
+services.forEach(service => {
+  switch (service.toLowerCase()) {
+    case 'iluminación': reservation = new LightingDecorator(reservation); break;
+    case 'árbitro': reservation = new RefereeDecorator(reservation); break;
+    case 'pelotas': reservation = new BallsDecorator(reservation); break;
+  }
+});
+
+const totalPrice = reservation.getPrice(); // $10,000 + extras
 ```
+
+**Ejemplo:** Base ($10,000) + Iluminación ($2,000) + Árbitro ($5,000) = **$17,000**
 
 ### ¿Por qué se toma la decisión de hacerlo de esta manera?
 
-1. **Evita explosión combinatoria:** Sin Decorator necesitaríamos una clase por cada combinación de extras
+1. **Evita explosión combinatoria:** 3 decoradores = 7 combinaciones vs. 7 clases separadas
+2. **Principio Abierto/Cerrado:** Agregar nuevos servicios sin modificar código existente
+3. **Flexibilidad:** Los usuarios eligen dinámicamente qué extras agregar
+4. **Cálculo transparente:** Cada decorador suma su costo independientemente
 
-2. **Principio Abierto/Cerrado:** Se pueden agregar nuevos extras sin modificar código existente
-
-3. **Flexibilidad:** Los usuarios eligen solo los extras que necesitan
-
-4. **Cálculo transparente:** Cada decorador suma su costo al total
-
-5. **Mantenibilidad:** Cada extra tiene lógica independiente
-
-6. **Reutilización:** Los mismos decoradores funcionan para diferentes tipos de canchas
-
-## Patrón Observer
+## Patrón Observer 📋 PLANIFICADO (No implementado aún)
 
 ### ¿Qué se va a notificar a los usuarios?
 
-1. **Confirmación de reserva:** Cuando se crea una nueva reserva
-2. **Recordatorios:** 24 horas y 2 horas antes de la reserva
-3. **Cancelaciones:** Por usuario o administrador de cancha
-4. **Modificaciones:** Cambios en horario o servicios
-5. **Estado de pagos:** Confirmaciones, recordatorios, reembolsos
-6. **Disponibilidad:** Alertas de canchas favoritas
-7. **Promociones:** Ofertas especiales
+1. **Confirmación de reserva** al crearla
+2. **Recordatorios** 24h y 2h antes
+3. **Cancelaciones** por usuario o admin
+4. **Modificaciones** en horario/servicios
 
 ### ¿Por qué medio?
 
-Múltiples observadores para diferentes canales:
+**Arquitectura multicanal planificada:**
 
-**Email (Observador Email):**
-- Notificaciones formales y detalladas
-- Confirmaciones con comprobantes
-- Canal principal para comunicaciones oficiales
+```typescript
+// Implementación futura
+class ReservationNotifier {
+  private observers: Observer[] = [];
+  
+  notify(event: ReservationEvent) {
+    this.observers.forEach(obs => obs.update(event));
+  }
+}
 
-**SMS (Observador SMS):**
-- Alertas urgentes
-- Recordatorios inmediatos
-- Alta tasa de apertura
-
-**Notificaciones Push (Observador Push):**
-- Alertas en tiempo real en móviles
-- Interacción rápida
-- No requiere app abierta
-
-**Notificaciones In-App (Observador InApp):**
-- Bandeja dentro del sistema
-- Historial completo
-- Siempre disponible
-
-Arquitectura:
+// Observadores concretos
+class EmailObserver { update(event) { /* Envía email */ } }
+class SMSObserver { update(event) { /* Envía SMS */ } }
+class PushObserver { update(event) { /* Envía push */ } }
+class InAppObserver { update(event) { /* Guarda en DB */ } }
 ```
-Evento (ReservaCreada)
-    ↓
-NotificadorCentral
-    ↓
-├── ObserverEmail
-├── ObserverSMS
-├── ObserverPush
-└── ObserverInApp
-```
+
+**Canales:**
+- **Email:** Confirmaciones formales con comprobantes
+- **SMS:** Recordatorios urgentes (2h antes)
+- **Push:** Alertas en tiempo real
+- **In-App:** Historial en el sistema
 
 ## ¿Quién gestiona las reservas?
 
-Modelo de gestión distribuida en tres niveles:
+**Actualmente (implementado):**
 
-**1. Usuarios (Clientes):**
-- Crean sus reservas
-- Cancelan dentro de políticas
-- Consultan historial
+```typescript
+// backend/src/controllers/ReservationController.ts
+class ReservationController {
+  async create(req, res) {
+    const userId = req.userId; // Del JWT
+    await ReservationService.createReservation(req.body);
+  }
+  
+  async cancel(req, res) {
+    const id = req.params.id;
+    await ReservationService.cancelReservation(id);
+  }
+}
 
-**2. Administradores de Canchas:**
-- Gestionan sus canchas específicas
-- Cancelan con justificación
-- Configuran precios y servicios
+// backend/src/middleware/auth.ts
+const auth = (req, res, next) => {
+  const token = req.headers['authorization'].split(' ')[1];
+  req.userId = jwt.verify(token, JWT_SECRET).id;
+  next();
+};
+```
 
-**3. Super Administrador:**
-- Supervisión general
-- Resolución de disputas
-- Configuración de políticas
+**Usuarios autenticados con JWT:** Crean y cancelan sus propias reservas
+
+**Rutas actuales:**
+- `POST /api/reservations` (auth) → Crear reserva
+- `GET /api/reservations/user/:userId` → Ver reservas propias
+- `DELETE /api/reservations/:id` → Cancelar reserva
 
 ## ¿Existirá un administrador?
 
-Sí, jerarquía de roles:
+**Sí, planificado para futuras versiones:**
 
-### Super Administrador
+**Jerarquía de roles futura:**
 
-**Responsabilidades:**
-- Gestión completa del sistema
-- Aprobación de nuevas canchas
-- Alta/baja de administradores
-- Resolución de disputas
-- Configuración global
-- Reportes de toda la plataforma
-- Gestión de usuarios
-- Mantenimiento técnico
-- Monitoreo de transacciones
+```typescript
+interface User {
+  id: number;
+  role: 'user' | 'admin_cancha' | 'super_admin';
+  cancha_id?: number; // Si es admin de cancha específica
+}
 
-### Administrador de Cancha
+// Middleware de autorización futuro
+const authorize = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({ error: 'Acceso denegado' });
+  }
+  next();
+};
+```
 
-Cada cancha tiene su administrador específico con permisos limitados.
+| Rol | Permisos |
+|-----|----------|
+| **Usuario** | Crear/cancelar sus reservas |
+| **Admin Cancha** | Gestionar su cancha específica |
+| **Super Admin** | Gestión global del sistema |
 
 ## ¿Las canchas tendrán rol de administrador?
 
-Sí, cada cancha tiene su administrador con funcionalidades específicas:
+**Sí, cada cancha tendrá su admin con funcionalidades:**
 
-### Gestión de Disponibilidad
-- Definir horarios de apertura/cierre
-- Establecer días no laborables
+**Planificado:**
+
+```typescript
+// Rutas futuras para admin de cancha
+router.get('/admin/cancha/:id/reservations', authorize('admin_cancha'), ...);
+router.put('/admin/cancha/:id/availability', authorize('admin_cancha'), ...);
+router.put('/admin/cancha/:id/pricing', authorize('admin_cancha'), ...);
+```
+
+**Funcionalidades del Admin de Cancha:**
+- Configurar disponibilidad y horarios
+- Ver todas las reservas de su cancha
+- Cancelar reservas con justificación
+- Configurar precios de servicios
 - Bloquear fechas por mantenimiento
-- Crear horarios especiales
-- Establecer horarios pico con precios diferenciados
-- Configurar duración de reservas
-
-### Gestión de Reservas
-- Visualizar todas las reservas de su cancha
-- Cancelar por causas justificadas
-- Modificar con consentimiento del usuario
-- Confirmar/rechazar solicitudes
-- Gestionar listas de espera
-- Marcar no-shows
-- Crear reservas administrativas
-
-### Configuración de Servicios
-- Definir extras disponibles
-- Establecer precios de extras
-- Activar/desactivar servicios
-- Configurar precios según día/horario
-- Establecer políticas de cancelación
-- Definir descuentos
-
-### Gestión Financiera
-- Visualizar ingresos
-- Consultar comisiones
-- Configurar métodos de cobro
-- Gestionar reembolsos
-- Exportar reportes
-
-### Reportes
-- Tasa de ocupación
-- Horarios populares
-- Ingresos por extra
-- Clientes frecuentes
-- Tasa de cancelación
-- Comparativas periódicas
-
-### Gestión de Información
-- Actualizar descripción y fotos
-- Modificar características
-- Gestionar reseñas
-- Responder consultas
+- Generar reportes de ocupación
 
